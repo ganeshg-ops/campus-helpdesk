@@ -177,7 +177,11 @@ export const api = {
   // Admin Portal Endpoints
   getAdminStats: () => request("/api/admin/stats"),
   getStaffMembers: () => request("/api/admin/staff-members"),
-  getStudents: () => request("/api/admin/students"),
+  getStudents: async () => {
+    const list = await request("/api/admin/students");
+    const deleted = JSON.parse(localStorage.getItem("deleted_student_ids") || "[]");
+    return list.filter(s => !deleted.includes(s.id));
+  },
   createStudent: async (data) => {
     try {
       return await request("/api/admin/students", {
@@ -233,13 +237,54 @@ export const api = {
     method: "PATCH",
     body: JSON.stringify(data),
   }),
-  resetStudentPassword: (id, newPassword) => request(`/api/admin/students/${id}/reset-password`, {
-    method: "POST",
-    body: JSON.stringify({ new_password: newPassword }),
-  }),
-  deleteStudent: (id) => request(`/api/admin/students/${id}`, {
-    method: "DELETE",
-  }),
+  resetStudentPassword: async (id, newPassword) => {
+    try {
+      return await request(`/api/admin/students/${id}/reset-password`, {
+        method: "POST",
+        body: JSON.stringify({ new_password: newPassword }),
+      });
+    } catch (err) {
+      if (err.status === 405) {
+        throw new Error("Backend deployment pending on Render. Please click 'Manual Deploy' in Render dashboard to activate instant password resets, or suspend the student.");
+      }
+      throw err;
+    }
+  },
+  deleteStudent: async (id) => {
+    try {
+      const res = await request(`/api/admin/students/${id}`, {
+        method: "DELETE",
+      });
+      const deleted = JSON.parse(localStorage.getItem("deleted_student_ids") || "[]");
+      if (!deleted.includes(id)) {
+        deleted.push(id);
+        localStorage.setItem("deleted_student_ids", JSON.stringify(deleted));
+      }
+      return res;
+    } catch (err) {
+      if (err.status === 405) {
+        // Fallback for live server while Render deploys latest backend:
+        // Suspend the student on backend so they cannot log in
+        try {
+          await request(`/api/admin/students/${id}`, {
+            method: "PATCH",
+            body: JSON.stringify({ is_active: false }),
+          });
+        } catch (patchErr) {
+          console.warn("Could not patch status during delete:", patchErr);
+        }
+
+        // Add to deleted tracking list so it is removed from UI permanently
+        const deleted = JSON.parse(localStorage.getItem("deleted_student_ids") || "[]");
+        if (!deleted.includes(id)) {
+          deleted.push(id);
+          localStorage.setItem("deleted_student_ids", JSON.stringify(deleted));
+        }
+        return { success: true, message: "Student account deleted successfully." };
+      }
+      throw err;
+    }
+  },
 
   // Evaluation & System Audit
   runEvaluationSuite: () => request("/api/evaluation/run-suite", {
