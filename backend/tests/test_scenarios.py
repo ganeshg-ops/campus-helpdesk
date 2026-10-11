@@ -166,6 +166,7 @@ def test_scenario_4_student_privacy_isolation():
                 user_id=student2.id,
                 subject="Student 2 Confidential Query",
                 description="Testing privacy isolation.",
+                category="General",
                 status="Open"
             )
             db.add(s2_ticket)

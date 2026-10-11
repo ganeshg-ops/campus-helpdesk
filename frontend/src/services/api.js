@@ -26,7 +26,15 @@ async function request(endpoint, options = {}) {
       let errorDetail = "An unexpected error occurred.";
       try {
         const errorJson = await response.json();
-        errorDetail = errorJson.detail || errorDetail;
+        if (Array.isArray(errorJson.detail)) {
+          errorDetail = errorJson.detail.map(d => d.msg || JSON.stringify(d)).join(", ");
+        } else if (typeof errorJson.detail === 'object' && errorJson.detail !== null) {
+          errorDetail = errorJson.detail.msg || errorJson.detail.message || JSON.stringify(errorJson.detail);
+        } else if (typeof errorJson.detail === 'string') {
+          errorDetail = errorJson.detail;
+        } else if (typeof errorJson.message === 'string') {
+          errorDetail = errorJson.message;
+        }
       } catch (e) {
         // Fallback for non-JSON errors
       }

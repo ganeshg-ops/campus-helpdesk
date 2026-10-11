@@ -124,9 +124,9 @@ class ConversationResponse(BaseModel):
 
 # --- Ticket Schemas ---
 class TicketCreate(BaseModel):
-    subject: str = Field(..., min_length=3, max_length=255)
-    description: str = Field(..., min_length=5)
-    category: str = Field(..., min_length=2, max_length=100)
+    subject: str = Field(..., min_length=1, max_length=255)
+    description: str = Field(..., min_length=1)
+    category: str = Field(..., min_length=1, max_length=100)
     priority: str = Field(default="Medium")
 
 class TicketUpdate(BaseModel):
@@ -218,7 +218,7 @@ class DocumentResponse(BaseModel):
 class StudentMessageCreate(BaseModel):
     student_name: Optional[str] = None
     student_email: Optional[str] = None
-    question: str = Field(..., min_length=2)
+    question: str = Field(..., min_length=1)
     message: Optional[str] = None
     chat_context: Optional[str] = None
     ticket_id: Optional[int] = None
@@ -227,7 +227,7 @@ class StudentMessageStatusUpdate(BaseModel):
     status: str  # New, In Progress, Resolved
 
 class StudentMessageReply(BaseModel):
-    reply: str = Field(..., min_length=2)
+    reply: str = Field(..., min_length=1)
 
 class StudentMessageResponse(BaseModel):
     id: int

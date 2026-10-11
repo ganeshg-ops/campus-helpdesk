@@ -10,6 +10,15 @@ export default function TicketModal({ isOpen, onClose, onSuccess, initialSubject
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  React.useEffect(() => {
+    if (isOpen) {
+      setError('');
+      setSubject(initialSubject || '');
+      setCategory(initialCategory || 'General');
+      setDescription('');
+    }
+  }, [isOpen, initialSubject, initialCategory]);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
@@ -28,10 +37,15 @@ export default function TicketModal({ isOpen, onClose, onSuccess, initialSubject
         category,
         priority
       });
+      setSubject('');
+      setDescription('');
       if (onSuccess) onSuccess(newTicket);
       onClose();
     } catch (err) {
-      setError(err.message || "Failed to create support ticket. Please try again.");
+      const msg = typeof err.message === 'string' && err.message !== '[object Object]'
+        ? err.message
+        : "Failed to create support ticket. Please check your input and try again.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
