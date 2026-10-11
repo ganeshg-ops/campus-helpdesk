@@ -178,10 +178,57 @@ export const api = {
   getAdminStats: () => request("/api/admin/stats"),
   getStaffMembers: () => request("/api/admin/staff-members"),
   getStudents: () => request("/api/admin/students"),
-  createStudent: (data) => request("/api/admin/students", {
-    method: "POST",
-    body: JSON.stringify(data),
-  }),
+  createStudent: async (data) => {
+    try {
+      return await request("/api/admin/students", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    } catch (err) {
+      if (err.status === 405) {
+        // Fallback for live production server while new backend image finishes deployment
+        const regRes = await request("/api/auth/student-register", {
+          method: "POST",
+          body: JSON.stringify({
+            full_name: data.full_name,
+            email: data.email,
+            password: data.password,
+            student_id: data.student_id || `CS-${Date.now().toString().slice(-4)}`,
+            department: data.department || "Computer Science & Engineering",
+            phone: data.phone || null,
+          }),
+        });
+
+        const createdUser = regRes.user || regRes;
+
+        if (data.is_active === false && createdUser.id) {
+          try {
+            await request(`/api/admin/students/${createdUser.id}`, {
+              method: "PATCH",
+              body: JSON.stringify({ is_active: false }),
+            });
+            createdUser.is_active = false;
+          } catch (e) {
+            console.warn("Could not set inactive:", e);
+          }
+        }
+
+        return {
+          id: createdUser.id,
+          full_name: createdUser.full_name,
+          email: createdUser.email,
+          role: createdUser.role || "student",
+          student_id: createdUser.student_id,
+          department: createdUser.department,
+          phone: createdUser.phone,
+          is_active: createdUser.is_active ?? true,
+          created_at: createdUser.created_at || new Date().toISOString(),
+          ticket_count: 0,
+        };
+      }
+      throw err;
+    }
+  },
   updateStudentStatus: (id, data) => request(`/api/admin/students/${id}`, {
     method: "PATCH",
     body: JSON.stringify(data),
