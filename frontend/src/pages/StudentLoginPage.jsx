@@ -35,10 +35,31 @@ export default function StudentLoginPage() {
     try {
       setLoading(true);
       setError('');
+      if (roleId === 'manoj') {
+        setEmail('manoj@campus.edu');
+        setPassword('manoj123');
+        await studentLogin('manoj@campus.edu', 'manoj123');
+        navigate('/student/dashboard');
+        return;
+      }
+      if (roleId === 'student1' || roleId === 'priya') {
+        setEmail('priya.sharma@campus.edu');
+        setPassword('campus123');
+        await studentLogin('priya.sharma@campus.edu', 'campus123');
+        navigate('/student/dashboard');
+        return;
+      }
+      if (roleId === 'student2' || roleId === 'rahul') {
+        setEmail('rahul.verma@campus.edu');
+        setPassword('campus123');
+        await studentLogin('rahul.verma@campus.edu', 'campus123');
+        navigate('/student/dashboard');
+        return;
+      }
       await switchDemoRole(roleId);
       navigate('/student/dashboard');
     } catch (err) {
-      setError("Demo login failed: " + err.message);
+      setError(err.message || "Login failed. Please check credentials.");
     } finally {
       setLoading(false);
     }
