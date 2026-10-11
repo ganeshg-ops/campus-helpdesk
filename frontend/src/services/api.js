@@ -178,9 +178,20 @@ export const api = {
   getAdminStats: () => request("/api/admin/stats"),
   getStaffMembers: () => request("/api/admin/staff-members"),
   getStudents: () => request("/api/admin/students"),
+  createStudent: (data) => request("/api/admin/students", {
+    method: "POST",
+    body: JSON.stringify(data),
+  }),
   updateStudentStatus: (id, data) => request(`/api/admin/students/${id}`, {
     method: "PATCH",
     body: JSON.stringify(data),
+  }),
+  resetStudentPassword: (id, newPassword) => request(`/api/admin/students/${id}/reset-password`, {
+    method: "POST",
+    body: JSON.stringify({ new_password: newPassword }),
+  }),
+  deleteStudent: (id) => request(`/api/admin/students/${id}`, {
+    method: "DELETE",
   }),
 
   // Evaluation & System Audit

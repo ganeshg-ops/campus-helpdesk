@@ -114,14 +114,25 @@ export default function StudentLoginPage() {
               <Sparkles className="w-3 h-3 text-amber-500" />
               <span>Instant Evaluator Demo Sign-In</span>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => handleQuickDemoLogin('manoj')}
+                className="p-2.5 rounded-xl border border-purple-200 bg-purple-50/70 hover:bg-purple-100/80 text-purple-950 text-[11px] font-semibold text-left transition"
+              >
+                <div className="font-bold truncate text-purple-900">Manoj Kumar</div>
+                <div className="text-[9px] text-purple-600 truncate font-mono">manoj@campus.edu</div>
+                <div className="text-[9px] text-slate-500 truncate mt-0.5">Password: manoj123</div>
+              </button>
+
               <button
                 type="button"
                 onClick={() => handleQuickDemoLogin('student1')}
                 className="p-2.5 rounded-xl border border-blue-200 bg-blue-50/60 hover:bg-blue-100/70 text-blue-900 text-[11px] font-semibold text-left transition"
               >
                 <div className="font-bold truncate">Priya Sharma</div>
-                <div className="text-[9px] text-blue-600 truncate">CS-2024-042 (Open Tickets)</div>
+                <div className="text-[9px] text-blue-600 truncate font-mono">priya.sharma@campus.edu</div>
+                <div className="text-[9px] text-slate-500 truncate mt-0.5">Password: campus123</div>
               </button>
 
               <button
@@ -130,18 +141,24 @@ export default function StudentLoginPage() {
                 className="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100/70 text-emerald-900 text-[11px] font-semibold text-left transition"
               >
                 <div className="font-bold truncate">Rahul Verma</div>
-                <div className="text-[9px] text-emerald-600 truncate">ME-2024-115 (Privacy Test)</div>
+                <div className="text-[9px] text-emerald-600 truncate font-mono">rahul.verma@campus.edu</div>
+                <div className="text-[9px] text-slate-500 truncate mt-0.5">Password: campus123</div>
               </button>
             </div>
           </div>
 
-          <div className="mt-5 text-center text-xs text-slate-500 space-y-2 pt-2 border-t border-slate-100">
-            <div>
-              New student?{" "}
-              <Link to="/student/register" className="text-blue-600 font-bold hover:underline">
-                Register for an account
-              </Link>
+          {/* Access Control Notice */}
+          <div className="mt-5 p-3 rounded-xl bg-slate-50 border border-slate-200 text-left space-y-1">
+            <div className="flex items-center gap-1.5 text-slate-800 font-bold text-[11px]">
+              <Shield className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+              <span>Admin-Controlled Student Access</span>
             </div>
+            <p className="text-[10px] text-slate-600 leading-relaxed">
+              Student accounts are provisioned and controlled exclusively by College Administration. Only IDs stored and active in the system database can log in.
+            </p>
+          </div>
+
+          <div className="mt-4 text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
             <div>
               Staff or Administrator?{" "}
               <Link to="/admin/login" className="text-purple-600 font-bold hover:underline">

@@ -43,6 +43,21 @@ class StudentListItem(BaseModel):
 class StudentStatusUpdate(BaseModel):
     is_active: Optional[bool] = None
     department: Optional[str] = None
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    student_id: Optional[str] = None
+
+class StudentCreateByAdmin(BaseModel):
+    full_name: str = Field(..., min_length=1, max_length=255)
+    email: str = Field(..., min_length=3, max_length=255)
+    password: str = Field(..., min_length=4)
+    student_id: Optional[str] = None
+    department: Optional[str] = "Computer Science & Engineering"
+    phone: Optional[str] = None
+    is_active: bool = True
+
+class StudentPasswordReset(BaseModel):
+    new_password: str = Field(..., min_length=4)
 
 class UserCreate(UserBase):
     password: str

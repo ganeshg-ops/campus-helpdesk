@@ -158,14 +158,42 @@ SAMPLE_CALENDAR = [
 ]
 
 def seed_database(db: Session):
-    # Check if database already seeded
-    if db.query(User).first():
+    # Ensure Manoj Kumar requested by admin is always provisioned, active, and has password 'manoj123'
+    manoj = db.query(User).filter(User.email == "manoj@campus.edu").first()
+    if not manoj:
+        manoj = User(
+            email="manoj@campus.edu",
+            full_name="Manoj Kumar",
+            role="student",
+            student_id="CS-2024-055",
+            department="Computer Science & Engineering",
+            phone="+91 98765 43210",
+            password_hash=hash_password("manoj123"),
+            is_active=True
+        )
+        db.add(manoj)
+        db.commit()
+    else:
+        manoj.password_hash = hash_password("manoj123")
+        manoj.is_active = True
+        db.commit()
+
+    # Check if database already seeded with base data
+    if db.query(User).filter(User.email == "priya.sharma@campus.edu").first():
         return
 
     print("Seeding database with default users, FAQs, calendar records, and tickets...")
 
     # 1. Create Users
     users_data = [
+        {
+            "email": "manoj@campus.edu",
+            "full_name": "Manoj Kumar",
+            "role": "student",
+            "student_id": "CS-2024-055",
+            "department": "Computer Science & Engineering",
+            "password_hash": hash_password("manoj123")
+        },
         {
             "email": "priya.sharma@campus.edu",
             "full_name": "Priya Sharma",

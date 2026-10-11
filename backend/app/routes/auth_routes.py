@@ -161,15 +161,17 @@ def switch_demo_user(role: str, db: Session = Depends(get_db)):
         user = db.query(User).filter(User.email == "rahul.verma@campus.edu").first()
     elif target_role in ["student", "student1", "priya"]:
         user = db.query(User).filter(User.email == "priya.sharma@campus.edu").first()
+    elif target_role in ["manoj", "student3", "student_manoj"]:
+        user = db.query(User).filter(User.email == "manoj@campus.edu").first()
     elif target_role in ["staff", "david"]:
         user = db.query(User).filter(User.role == "staff").first()
     elif target_role in ["admin", "dean"]:
         user = db.query(User).filter(User.role == "admin").first()
     else:
-        raise HTTPException(status_code=400, detail="Invalid role specified. Use 'student', 'student2', 'staff', or 'admin'.")
+        raise HTTPException(status_code=400, detail="Invalid role specified. Use 'manoj', 'student', 'student2', 'staff', or 'admin'.")
 
     if not user:
-        raise HTTPException(status_code=404, detail="Demo user not found.")
+        raise HTTPException(status_code=404, detail="Requested user account not found in database.")
 
     access_token = create_access_token(data={"sub": user.email, "role": user.role, "id": user.id})
     return {

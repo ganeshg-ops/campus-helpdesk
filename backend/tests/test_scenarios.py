@@ -116,6 +116,87 @@ def test_student_registration_forces_student_role():
     user_data = reg_res.json()["user"]
     assert user_data["role"] == "student"
 
+def test_manoj_kumar_seeded_login():
+    """Verify pre-stored student account Manoj Kumar logs in successfully with password manoj123."""
+    response = client.post("/api/auth/student-login", json={
+        "email": "manoj@campus.edu",
+        "password": "manoj123"
+    })
+    assert response.status_code == 200
+    data = response.json()
+    assert data["user"]["email"] == "manoj@campus.edu"
+    assert data["user"]["full_name"] == "Manoj Kumar"
+    assert data["user"]["role"] == "student"
+    assert data["user"]["is_active"] is True
+
+def test_admin_student_management_lifecycle():
+    """Verify Admin can create student, suspend login, reactivate login, reset password, and delete."""
+    admin_headers = get_admin_headers()
+    uniq = time.time_ns()
+    student_email = f"managed.student.{uniq}@campus.edu"
+    
+    # 1. Admin creates student
+    create_res = client.post("/api/admin/students", json={
+        "full_name": "Managed Student",
+        "email": student_email,
+        "password": "initialPass123",
+        "student_id": f"MS-{uniq % 100000}",
+        "department": "Information Technology",
+        "is_active": True
+    }, headers=admin_headers)
+    assert create_res.status_code == 201
+    student_id = create_res.json()["id"]
+
+    # 2. Student logs in
+    login_res = client.post("/api/auth/student-login", json={
+        "email": student_email,
+        "password": "initialPass123"
+    })
+    assert login_res.status_code == 200
+
+    # 3. Admin suspends student
+    suspend_res = client.patch(f"/api/admin/students/{student_id}", json={
+        "is_active": False
+    }, headers=admin_headers)
+    assert suspend_res.status_code == 200
+
+    # 4. Student blocked from login (403 Forbidden)
+    blocked_login = client.post("/api/auth/student-login", json={
+        "email": student_email,
+        "password": "initialPass123"
+    })
+    assert blocked_login.status_code == 403
+
+    # 5. Admin reactivates student
+    reactivate_res = client.patch(f"/api/admin/students/{student_id}", json={
+        "is_active": True
+    }, headers=admin_headers)
+    assert reactivate_res.status_code == 200
+
+    # 6. Admin resets student password
+    reset_res = client.post(f"/api/admin/students/{student_id}/reset-password", json={
+        "new_password": "newSecurePass456"
+    }, headers=admin_headers)
+    assert reset_res.status_code == 200
+
+    # 7. Student logs in with new password
+    new_login = client.post("/api/auth/student-login", json={
+        "email": student_email,
+        "password": "newSecurePass456"
+    })
+    assert new_login.status_code == 200
+
+    # 8. Admin deletes student
+    del_res = client.delete(f"/api/admin/students/{student_id}", headers=admin_headers)
+    assert del_res.status_code == 200
+
+    # 9. Student cannot log in anymore (401 Unauthorized)
+    deleted_login = client.post("/api/auth/student-login", json={
+        "email": student_email,
+        "password": "newSecurePass456"
+    })
+    assert deleted_login.status_code == 401
+
 def test_scenario_1_normal_faq_grounding_and_citations():
     """Test 1: Normal FAQ matching approved records includes source citations with page numbers."""
     headers = get_student_headers()
