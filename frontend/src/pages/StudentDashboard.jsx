@@ -74,33 +74,34 @@ export default function StudentDashboard() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-5xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-6 sm:space-y-8">
       {/* Top Welcome Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-2 border-b border-slate-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-3 border-b border-slate-200">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold mb-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-semibold mb-1">
+            <Sparkles className="w-3 h-3 text-blue-600" />
             <span>Campus Helpdesk • Student Portal</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Welcome back, {user?.full_name || 'Student'}! 👋
+          <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-1.5 flex-wrap">
+            <span>Welcome back, {user?.full_name || 'Student'}!</span>
+            <span>👋</span>
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
             {user?.department ? `${user.department} • Student ID: ${user.student_id || 'Active'}` : 'Ask questions grounded in official college documents.'}
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 self-start sm:self-auto">
           <button
             onClick={() => handleOpenContactAdmin()}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-sm transition"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs transition"
           >
-            <Mail className="w-4 h-4 text-blue-600" />
+            <Mail className="w-3.5 h-3.5 text-blue-600" />
             <span>Contact Admin</span>
           </button>
           <button
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 text-xs font-semibold transition"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 text-xs font-semibold transition"
             title="Log out of student portal"
           >
             <LogOut className="w-3.5 h-3.5" />
@@ -110,34 +111,34 @@ export default function StudentDashboard() {
       </div>
 
       {/* Hero "Ask Campus AI" Box */}
-      <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 rounded-3xl p-6 sm:p-10 text-white shadow-xl shadow-blue-900/10 relative overflow-hidden">
-        <div className="relative z-10 max-w-3xl mx-auto text-center space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur text-white flex items-center justify-center mx-auto shadow-inner">
-            <Bot className="w-8 h-8" />
+      <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 rounded-2xl sm:rounded-3xl p-5 sm:p-10 text-white shadow-xl shadow-blue-900/10 relative overflow-hidden">
+        <div className="relative z-10 max-w-3xl mx-auto text-center space-y-3 sm:space-y-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/20 backdrop-blur text-white flex items-center justify-center mx-auto shadow-inner">
+            <Bot className="w-6 h-6 sm:w-8 sm:h-8" />
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+          <h2 className="text-xl sm:text-3xl font-extrabold tracking-tight">
             Ask Campus AI
           </h2>
-          <p className="text-blue-100 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
+          <p className="text-blue-100 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed px-1">
             Get instant, truthful answers on bonafide certificates, attendance regulations, leave letters, and examination guidelines based on official college documents.
           </p>
 
           {/* Large Chat Box Input */}
           <form onSubmit={handleAskCampusAI} className="pt-2">
-            <div className="flex items-center bg-white rounded-2xl p-2 shadow-2xl max-w-2xl mx-auto border border-white/30">
+            <div className="flex items-center bg-white rounded-xl sm:rounded-2xl p-1.5 sm:p-2 shadow-2xl max-w-2xl mx-auto border border-white/30 gap-1.5">
               <input
                 type="text"
                 disabled={isNavigating}
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
-                placeholder="Ask any question (e.g. How do I apply for a bonafide certificate?)..."
-                className="w-full text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none px-4 py-2.5 disabled:opacity-75"
+                placeholder="Ask any question (e.g. Bonafide certificate)..."
+                className="w-full text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none px-3 sm:px-4 py-2 sm:py-2.5 disabled:opacity-75 min-w-0"
               />
               <button
                 type="submit"
                 disabled={!chatInput.trim() || isNavigating}
-                className="inline-flex items-center gap-1.5 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs shadow-md transition shrink-0"
+                className="inline-flex items-center gap-1.5 px-3.5 sm:px-5 py-2 sm:py-3 rounded-lg sm:rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs shadow-md transition shrink-0"
               >
                 <span>{isNavigating ? 'Opening...' : 'Ask AI'}</span>
                 <Send className="w-3.5 h-3.5" />
@@ -153,25 +154,25 @@ export default function StudentDashboard() {
 
       {/* Suggested Questions Section */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+          <h3 className="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
             <HelpCircle className="w-4 h-4 text-blue-600" />
             Suggested Questions
           </h3>
-          <span className="text-xs text-slate-400">Click any card to ask instantly</span>
+          <span className="text-[11px] sm:text-xs text-slate-400">Click any card to ask instantly</span>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
           {suggestedQuestions.map((q, idx) => (
             <button
               key={idx}
               onClick={() => handleSuggestedClick(q)}
-              className="bg-white hover:bg-blue-50/70 border border-slate-200 hover:border-blue-300 p-4 rounded-2xl text-left shadow-sm hover:shadow transition group flex flex-col justify-between"
+              className="bg-white hover:bg-blue-50/70 border border-slate-200 hover:border-blue-300 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl text-left shadow-xs hover:shadow transition group flex flex-col justify-between"
             >
               <div className="text-xs font-semibold text-slate-800 group-hover:text-blue-700 transition">
                 {q}
               </div>
-              <div className="mt-3 flex items-center justify-between text-[11px] text-blue-600 font-bold opacity-0 group-hover:opacity-100 transition">
+              <div className="mt-2.5 flex items-center justify-between text-[11px] text-blue-600 font-bold opacity-0 group-hover:opacity-100 transition">
                 <span>Ask this now</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </div>
