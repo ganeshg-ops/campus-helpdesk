@@ -72,7 +72,14 @@ class StudentSupportAgent:
                     )
                     if resp.status_code == 200:
                         data = resp.json()
-                        return data["choices"][0]["message"]["content"].strip()
+                        text = data["choices"][0]["message"]["content"].strip()
+                        if any(p in text.lower() for p in [
+                            "couldn't find", "could not find", "not found in the", "not available",
+                            "no information", "does not mention", "do not mention", "does not contain",
+                            "do not contain", "contact the college admin", "contact the admin"
+                        ]):
+                            return FALLBACK_UNAVAILABLE_MESSAGE
+                        return text
             except Exception as e:
                 logger.warning(f"OpenAI call failed, falling back to local grounder: {e}")
 
@@ -94,6 +101,12 @@ class StudentSupportAgent:
                     if resp.status_code == 200:
                         data = resp.json()
                         text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+                        if any(p in text.lower() for p in [
+                            "couldn't find", "could not find", "not found in the", "not available",
+                            "no information", "does not mention", "do not mention", "does not contain",
+                            "do not contain", "contact the college admin", "contact the admin"
+                        ]):
+                            return FALLBACK_UNAVAILABLE_MESSAGE
                         return text
             except Exception as e:
                 logger.warning(f"Gemini call failed, falling back to local grounder: {e}")
@@ -220,9 +233,12 @@ class StudentSupportAgent:
                 scored.append((overlap, s_clean))
 
         scored.sort(key=lambda x: x[0], reverse=True)
-        if scored and scored[0][0] >= 1:
-            top_sents = [item[1] for item in scored[:2]]
-            return " ".join(top_sents)
+        if scored and query_words:
+            best_overlap = scored[0][0]
+            # Require at least 2 distinct key query terms to match (or full match for single-word queries)
+            if (len(query_words) == 1 and best_overlap >= 1) or (best_overlap >= 2 and (best_overlap / len(query_words)) >= 0.4):
+                top_sents = [item[1] for item in scored[:2]]
+                return " ".join(top_sents)
 
         return None
 

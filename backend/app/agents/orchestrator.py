@@ -161,7 +161,18 @@ class CampusAgentOrchestrator:
             if review_res["approved"]:
                 final_answer = support_agent.compose_grounded_response(query, retrieval_data, is_demo=settings.DEMO_MODE)
                 # Check if support agent fallback was returned
-                if "couldn't find the exact information" in final_answer:
+                is_missing = any(phrase in final_answer.lower() for phrase in [
+                    "couldn't find the exact information",
+                    "could not find",
+                    "not available in the college documents",
+                    "not found in the college documents",
+                    "contact the college admin",
+                    "contact admin option below",
+                    "does not contain",
+                    "do not contain",
+                    "no information"
+                ])
+                if is_missing:
                     escalation_offered = True
                     answer_available = False
             elif review_res["action"] == "escalate":

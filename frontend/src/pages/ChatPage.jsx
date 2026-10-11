@@ -361,7 +361,15 @@ export default function ChatPage() {
           ) : (
             messages.map((m) => {
               const isUser = m.sender === 'user';
-              const isMissingInfo = !isUser && (m.answer_available === false || m.escalation_offered || m.content.includes("couldn't find the exact information"));
+              const isMissingInfo = !isUser && (
+                m.answer_available === false ||
+                m.escalation_offered ||
+                m.content.includes("couldn't find the exact information") ||
+                m.content.includes("could not find") ||
+                m.content.includes("contact the college admin") ||
+                m.content.includes("Contact Admin option below") ||
+                m.content.includes("not available in the college documents")
+              );
 
               return (
                 <div key={m.id} className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
@@ -381,11 +389,12 @@ export default function ChatPage() {
                       {m.content}
                     </div>
 
-                    {/* Requirement 3: When Answer Is Not Available in PDFs -> Show Email Admin & Ask Another Question */}
+                    {/* Requirement 3: When Answer Is Not Available in PDFs -> Show Contact Admin & Ask Another Question */}
                     {isMissingInfo && (
                       <div className="mt-4 pt-3.5 border-t border-slate-100">
-                        <div className="text-[11px] font-semibold text-slate-500 mb-2.5">
-                          How would you like to proceed?
+                        <div className="text-[11px] font-semibold text-slate-500 mb-2.5 flex items-center gap-1.5">
+                          <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
+                          <span>This information is not in the uploaded documents. Contact the admin directly:</span>
                         </div>
                         <div className="flex flex-wrap items-center gap-2.5">
                           <button
@@ -393,7 +402,7 @@ export default function ChatPage() {
                             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-500/20 transition"
                           >
                             <Mail className="w-3.5 h-3.5" />
-                            Email Admin
+                            Contact Admin
                           </button>
                           <button
                             onClick={handleAskAnotherQuestion}

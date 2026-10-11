@@ -32,7 +32,9 @@ class KnowledgeAgent:
         results = search_res.get("results", [])
         citations = []
         is_contradictory = False
-        evidence_found = len(results) > 0
+        # Only treat as verified evidence if top result has a credible relevance score
+        meaningful_results = [r for r in results if r.get("relevance_score", 0) >= 0.35]
+        evidence_found = len(meaningful_results) > 0
 
         # Check for contradictory answers in retrieved results
         if len(results) >= 2:
