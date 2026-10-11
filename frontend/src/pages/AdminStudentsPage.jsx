@@ -145,7 +145,11 @@ export default function AdminStudentsPage() {
       setResetModalStudent(null);
       setNewPassword('');
     } catch (err) {
-      setResetError(err.message || "Failed to reset password.");
+      if (err.message && (err.message.includes("Not Found") || err.status === 404)) {
+        setResetError("Backend update pending on Render: Please click 'Manual Deploy -> Deploy latest commit' on your Render dashboard tab to enable password resets.");
+      } else {
+        setResetError(err.message || "Failed to reset password.");
+      }
     } finally {
       setResetSubmitting(false);
     }
