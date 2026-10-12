@@ -135,17 +135,7 @@ export default function StudentLoginPage() {
               <Sparkles className="w-3 h-3 text-amber-500" />
               <span>Instant Evaluator Demo Sign-In</span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickDemoLogin('manoj')}
-                className="p-2.5 rounded-xl border border-purple-200 bg-purple-50/70 hover:bg-purple-100/80 text-purple-950 text-[11px] font-semibold text-left transition"
-              >
-                <div className="font-bold truncate text-purple-900">Manoj Kumar</div>
-                <div className="text-[9px] text-purple-600 truncate font-mono">manoj@campus.edu</div>
-                <div className="text-[9px] text-slate-500 truncate mt-0.5">Password: manoj123</div>
-              </button>
-
+            <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => handleQuickDemoLogin('student1')}
