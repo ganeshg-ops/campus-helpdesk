@@ -157,6 +157,112 @@ SAMPLE_CALENDAR = [
     }
 ]
 
+SAMPLE_COLLEGE_RULES_CHUNKS = [
+    (1, 0, "SECTION 1: SAMPLE COLLEGE INFORMATION. Institution: Greenfield Institute of Technology (fictional), Madurai, Tamil Nadu. Academic Year: 2026-2027. Student Services Office: Ground Floor, Admin Block. Office Hours: Monday to Friday, 9:30 AM-4:30 PM; Saturday, 9:30 AM-12:30 PM. Closed on Sundays and declared holidays."),
+    (1, 1, "SECTION 2: BONAFIDE CERTIFICATE PROCEDURE. Students who need a bonafide certificate: 1. Log in to the student portal and open Student Services -> Certificate Requests. 2. Select 'Bonafide Certificate' and enter purpose (scholarship, bank account, or travel concession). 3. Enter student name, register number, department, and year of study. 4. Upload valid student ID copy if requested. 5. Submit request and note reference number. 6. Student Services Office reviews in up to 3 working days. 7. Download or collect once approved. Sample fee: No fee for the first bonafide certificate in an academic year. A duplicate copy may cost ₹20 (Rs 20)."),
+    (1, 2, "SECTION 3 & 4: ATTENDANCE GUIDELINES & LEAVE REQUEST PROCEDURE. Minimum attendance required is 75% in each course to be eligible for end-semester examinations. Medical or other leave does not automatically count as attendance. Students falling below 75% must contact class advisor and academic office for condonation approval. Leave procedure: Inform class advisor early, submit request through portal/approved process with dates, reason, and supporting documents. Submitting does not mean approval."),
+    (2, 3, "SECTION 5: STUDENT ID CARD GUIDELINES. Students should carry their college ID card while on campus and show it when requested by authorized college staff. For lost or damaged cards, report to Student Services Office. The sample replacement charge is ₹100 (Rs 100), and sample replacement timeline is 2 working days after verification."),
+    (2, 4, "SECTION 6: EXAMINATION TIMETABLE. The examination timetable is published by Examination Cell through the student portal and official college notice channels. Students should verify course code, date, session, and venue from the latest notice. If exam dates are not present in approved notices, AI assistant directs student to Examination Cell rather than inventing dates."),
+    (2, 5, "SECTION 7: FEE PAYMENT AND RECEIPTS. Students should pay fees only through official payment channels listed in student portal or at authorized college counter. Save receipt or transaction reference. If money debited but receipt missing, do not pay again immediately; contact Accounts Office with register number, date, amount, transaction reference. Never share passwords, PIN, or OTP with staff."),
+    (2, 6, "SECTION 8: HOSTEL GUIDELINES. Hostel residents must follow published entry and exit timings. Overnight leave requires prior approval from hostel warden. Visitors must register at reception and follow visitor rules. Report maintenance, water, electricity, safety issues to hostel office. Exact curfew times are not defined in this document."),
+    (2, 7, "SECTION 9 & 10: CONTACT DIRECTORY & AI HELPDESK RULES. Student Services Office: studentservices@example.com (Bonafide & certificates). Examination Cell: exams@example.com (Timetable & exam queries). Accounts Office: accounts@example.com (Fees & receipts). Hostel Office: hostel@example.com (Hostel rules & maintenance). Campus Helpdesk Admin: admin@example.com (Unanswered questions). AI rules: Answer only using approved uploaded documents with page numbers. Offer Contact Admin option if missing."),
+    (3, 8, "SECTION 11: PRIVACY & DATA PROTECTION. Do not reveal another student's personal data or private support requests. End of sample document: Replace all fictional information with verified college-approved content before real deployment.")
+]
+
+def ensure_sample_college_rules_document(db: Session):
+    """
+    Guarantees that 'Sample_College_Rules_and_Student_Services.pdf' is ALWAYS
+    present, approved, indexed, and available in the Knowledge Base / Document Manager
+    across all app restarts and fresh deployments.
+    """
+    doc_filename = "Sample_College_Rules_and_Student_Services.pdf"
+    doc_title = "Sample College Rules & Student Services"
+
+    doc = db.query(Document).filter(
+        (Document.filename == doc_filename) |
+        (Document.title.ilike("%Sample College Rules%"))
+    ).first()
+
+    file_path = os.path.join("uploads", doc_filename)
+    full_path = os.path.join(os.path.dirname(__file__), "..", "uploads", doc_filename)
+    file_size = 72400
+    if os.path.exists(full_path):
+        file_size = os.path.getsize(full_path)
+    elif os.path.exists(file_path):
+        file_size = os.path.getsize(file_path)
+
+    if not doc:
+        doc = Document(
+            filename=doc_filename,
+            title=doc_title,
+            description="Official college guidelines covering Greenfield Institute of Technology info, bonafide certificates, attendance condonation, ID replacement, fee payment, hostel rules, and contact directory.",
+            category="Academics",
+            file_path=file_path,
+            file_size=file_size,
+            page_count=3,
+            ocr_needed=False,
+            is_approved=True,
+            status="indexed",
+            chunk_count=len(SAMPLE_COLLEGE_RULES_CHUNKS)
+        )
+        db.add(doc)
+        db.flush()
+
+        for page_num, c_idx, content in SAMPLE_COLLEGE_RULES_CHUNKS:
+            chunk_obj = DocumentChunk(
+                document_id=doc.id,
+                chunk_index=c_idx,
+                page_number=page_num,
+                content=content,
+                metadata_json=json.dumps({
+                    "source": doc_title,
+                    "filename": doc_filename,
+                    "page": page_num,
+                    "verified": True
+                })
+            )
+            db.add(chunk_obj)
+        db.commit()
+        print(f"Provisioned and indexed permanent document: {doc_filename}")
+    else:
+        # Document exists: ensure it's approved and indexed
+        updated = False
+        if doc.status != "indexed":
+            doc.status = "indexed"
+            updated = True
+        if not doc.is_approved:
+            doc.is_approved = True
+            updated = True
+        if doc.title != doc_title:
+            doc.title = doc_title
+            updated = True
+        if not doc.file_path or doc.file_path != file_path:
+            doc.file_path = file_path
+            updated = True
+
+        existing_chunks = db.query(DocumentChunk).filter(DocumentChunk.document_id == doc.id).count()
+        if existing_chunks < len(SAMPLE_COLLEGE_RULES_CHUNKS):
+            db.query(DocumentChunk).filter(DocumentChunk.document_id == doc.id).delete()
+            for page_num, c_idx, content in SAMPLE_COLLEGE_RULES_CHUNKS:
+                chunk_obj = DocumentChunk(
+                    document_id=doc.id,
+                    chunk_index=c_idx,
+                    page_number=page_num,
+                    content=content,
+                    metadata_json=json.dumps({
+                        "source": doc_title,
+                        "filename": doc_filename,
+                        "page": page_num,
+                        "verified": True
+                    })
+                )
+                db.add(chunk_obj)
+            doc.chunk_count = len(SAMPLE_COLLEGE_RULES_CHUNKS)
+            updated = True
+
+        if updated:
+            db.commit()
+
 def seed_database(db: Session):
     # Ensure Manoj Kumar requested by admin is always provisioned, active, and has password 'manoj123'
     manoj = db.query(User).filter(User.email == "manoj@campus.edu").first()
@@ -177,6 +283,9 @@ def seed_database(db: Session):
         manoj.password_hash = hash_password("manoj123")
         manoj.is_active = True
         db.commit()
+
+    # Ensure Sample_College_Rules_and_Student_Services.pdf is ALWAYS present, approved, and indexed in Knowledge Manager
+    ensure_sample_college_rules_document(db)
 
     # Check if database already seeded with base data
     if db.query(User).filter(User.email == "priya.sharma@campus.edu").first():
